@@ -15,10 +15,17 @@ class Regextruder
 
   class << self
     def generate(pattern)
+      pattern = if pattern.kind_of? String
+                  Regexp.new(pattern)
+                elsif pattern.kind_of? Regexp
+                  pattern
+                else
+                  raise "String or Regexp pattern only"
+                end
       result = []
       powers_map = {multi: [], add: []}
       in_group = false
-      Regexp::Parser.parse(/#{pattern}/).traverse do |event, exp|
+      Regexp::Parser.parse(pattern).traverse do |event, exp|
         #puts "event: #{event}; type: #{exp.type}; #{exp.to_s}"
         if exp.type == :group && [:enter, :exit].include?(event)
           if event == :enter
